@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# simply copy to the clipboard
+# your working directory
+
+echo "copied working directory - you're welcome"
+pwd | tr -d '\n' | pbcopy

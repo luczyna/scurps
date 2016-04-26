@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# simply copy to the clipboard
+# your current git branch
+
+copy_git_branch_to_clipboard ()
+{
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "there was no git branch to copy"
+    return 0
+  fi
+
+  git_branch=$(git branch 2>/dev/null| sed -n '/^\*/s/^\* //p')
+
+  echo "copied your current git branch - $git_branch"
+  echo "$git_branch" | tr -d '\n' | pbcopy
+}
+
+copy_git_branch_to_clipboard

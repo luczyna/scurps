@@ -1,0 +1,136 @@
+#!/bin/bash
+
+# cycle through the local branches in your current directory
+# press enter on the one you like to copy it to your clipboard
+
+# get list of local branch names
+# if there aren't any, then tell the person
+
+# enter a state where you can navigate through them with the arrow keys
+# let them know how many there are, which one they're on
+# show the name of the branch currectly ticked to
+# on enter, copy the branch name to clipboard, leave script
+# if branch is current, don't copy the asterisk
+
+# arrow_right="`echo -e '\e[C'`"
+# arrow_left="`echo -e '\e[D'`"
+# arrow_right="^[[C"
+# arrow_left="^[[D"
+arrow_right="'"
+arrow_left=";"
+enter_key=""
+
+please_continue=true
+marker=""
+current=0
+gave_instruction=false
+
+declare -a git_branches
+
+check_for_git_repo() {
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "you are not in a git repository"
+    let "please_continue=false"
+    return 0
+  fi
+}
+check_for_git_repo
+
+get_git_branch_list() {
+  branch_list="$(git branch)"
+
+  IFS=$'\n'
+  for b in $branch_list; do
+    b_trimmed="$(echo $b | tr -d '[[:space:]]')"
+    git_branches+=("$b_trimmed")
+  done
+}
+
+ask_for_input() {
+  read -sn 1 input
+
+  case "$input" in
+    "$arrow_right") increment_current;;
+    "$arrow_left") decrease_current;;
+    "$enter_key") copy_current_branch;;
+    *) ask_for_input;;
+  esac
+}
+
+increment_current() {
+  current=$(( current+1 ))
+
+  if [ "$current" -eq "${#git_branches[@]}" ]
+    then
+      let "current=0"
+  fi
+
+  change_git_branch
+}
+
+decrease_current() {
+  current=$(( current-1 ))
+
+  if [ 0 -gt "$current" ]
+    then
+      let "current=${#git_branches[@]}-1"
+  fi
+
+  change_git_branch
+}
+
+change_git_branch() {
+  marker=""
+
+  for ((i=0; i<${#git_branches[@]}; i++)); do
+    if [[ "$i" -eq "$current" ]]
+      then
+        marker+="*"
+      else
+        marker+="."
+    fi
+  done
+
+  ## only clearline after we've given instruction
+  ## instruction only happens once
+  if [ $gave_instruction == true ]
+   then
+    clearline
+    clearline
+  fi
+  gave_instruction=true
+
+  echo "$marker"
+  echo "copy this branch? ${git_branches[$current]}"
+  ask_for_input
+}
+
+copy_current_branch() {
+  copy_this="${git_branches[$current]}"
+  if [[ $copy_this == \** ]]
+    then
+      copy_this="${copy_this//'*'/}"
+  fi
+
+  echo "copied $copy_this to clipboard -- you're welcome"
+  echo "$copy_this" | tr -d '\n' | pbcopy
+  exit 0
+}
+
+clearline() {
+  tput cuu 1 && tput el
+}
+
+# start everything here
+if [[ $please_continue == true ]]
+  then
+    get_git_branch_list
+    ## give instructions
+    echo "We have ${#git_branches[@]} branches available"
+    echo -e "\tnavigate between branches with ; and ', respectively"
+    echo -e "\tpress enter to copy that branch to your clipboard"
+    ## trigger things
+    change_git_branch
+  else
+    exit 0
+fi
