@@ -25,6 +25,22 @@ Cycle through the local branches in a git repo, and copy the branch name of your
 
 _[see source](./ggb)_
 
+## Prompt Helpers
+
+#### Show current git branch
+
+Everyone has their own choice for their prompt; I like to show my current working directory and, if in a git repo, my current branch. I have the [get_git_branch](./prompt/current-git-branch.sh) function, `git_prompt` in my `bash_profile`, and I've updated my prompt like so:
+
+``` sh
+# PROMPT purdiness
+PS1='\w $(git_prompt)\n$ '
+```
+
+``` prompt
+~/Documents/projects/bathroom [master]
+$ echo "I am a pretty butterfly"
+```
+
 # Installing
 
 With the file on your machine, you'll change it's permissions to be executable, and then move it to your bin of executable goodness.
