@@ -23,6 +23,8 @@ _[see source](./gbcc)_
 
 Cycle through the local branches in a git repo, and copy the branch name of your choice to your clipboard. Look ma, no hands (coming off the keyboard to use the mouse to select the git branch in order to checkout to it, yeah!). Think, "get git branch".
 
+![example of ggb](./captures/ggb.gif "ggb in use")
+
 _[see source](./ggb)_
 
 ## Prompt Helpers
